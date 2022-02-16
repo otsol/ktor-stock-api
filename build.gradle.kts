@@ -54,3 +54,7 @@ tasks.jar {
     }
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
+
+//tasks.create("stage") {
+//    dependsOn("installDist")
+//} t't' kuuluis k'ytt'' herokun kanssa https://ktor.io/docs/heroku.html#stage

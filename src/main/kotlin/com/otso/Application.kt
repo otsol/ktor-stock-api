@@ -7,9 +7,9 @@ import com.otso.stockdata.load
 import com.otso.stockdata.setStorage
 import io.ktor.application.*
 
-
-fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
+// remember to adjust heroku envs GRADLE_TASK="build"
+fun main() { // Netty, port = 8080, host = "0.0.0.0"
+    embeddedServer(Netty, port = System.getenv("PORT").toInt()) {
         configureRouting()
         configureSerialization()
         configureHTTP()
