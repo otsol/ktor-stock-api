@@ -20,9 +20,7 @@ class ApplicationTest {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("Hello World!", response.content)
             }
-//            handleRequest(HttpMethod.Get, "/date/").apply {
-//                assertEquals(HttpStatusCode.OK, response.status())
-//            }
+
         }
     }
 }

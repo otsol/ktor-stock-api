@@ -105,9 +105,6 @@ fun setStorage() {
                 LocalDate.parse(it[0].data, simpleFormat)
             )
         }
-
-    //println(stockDataStorage.toString())
-    println("ok")
 }
 
 suspend fun loadStockData(stock: String): String {
