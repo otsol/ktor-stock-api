@@ -10,4 +10,4 @@ cd build/libs/
 java -jar stock-api-0.0.1.jar  
 
 # test the running application
-curl http://0.0.0.0:8080/stock/AAPL
+curl http://0.0.0.0:8080/date
