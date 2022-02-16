@@ -48,6 +48,9 @@ val client = HttpClient(CIO) {
     }
 }
 
+var envMCDKEY: String = System.getenv("API_KEY_MCD") ?: "OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX" // public demo api key
+var envSTOCKKEY: String = System.getenv("API_KEY_STOCK") ?: "OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX" // public demo api key
+
 var stockDataStorage = emptyList<List<StockDetail>>()
 var stockDataStorage2 = emptyList<StockpointEODH>()
 var stockStorage = mutableMapOf<String, List<StockpointEODH>>()
@@ -60,7 +63,8 @@ suspend fun loadData(): String  {
 //        csvFile = response.receive()
 //        return@launch
 //    }
-    val response: io.ktor.client.statement.HttpResponse = client.get("https://eodhistoricaldata.com/api/eod/MCD.US?api_token=OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX&period=d")//get("https://eodhistoricaldata.com/api/eod/AMZN.US?api_token=62032ef650f652.09181735")
+
+    val response: io.ktor.client.statement.HttpResponse = client.get("https://eodhistoricaldata.com/api/eod/MCD.US?api_token=${envMCDKEY}&period=d")
     return response.receive<String>()
 }
 
@@ -107,7 +111,7 @@ fun setStorage() {
 }
 
 suspend fun loadStockData(stock: String): String {
-    //var simpleFormat = DateTimeFormatter.ISO_DATE
+
     var currentDate = LocalDate.now()
     val currentDS = currentDate.toString()
     println(currentDS)
@@ -115,13 +119,12 @@ suspend fun loadStockData(stock: String): String {
     val tenAgoDS = tenDaysAgo.toString()
     println(tenAgoDS)
 
-    val response: io.ktor.client.statement.HttpResponse = client.get("https://eodhistoricaldata.com/api/eod/${stock}.US?from=${tenAgoDS}&to=${currentDS}&period=d&api_token=62032ef650f652.09181735")//get("https://eodhistoricaldata.com/api/eod/AMZN.US?api_token=62032ef650f652.09181735")
+    val response: io.ktor.client.statement.HttpResponse = client.get("https://eodhistoricaldata.com/api/eod/${stock}.US?from=${tenAgoDS}&to=${currentDS}&period=d&api_token=${envSTOCKKEY}")
     return response.receive<String>()
 }
 
 fun loadStock(stock: String): String? = runBlocking {
 
-    //var simpleFormat = DateTimeFormatter.ISO_DATE
     var currentDate = LocalDate.now()
     val currentDS = currentDate.toString()
     println(currentDS)
@@ -129,10 +132,8 @@ fun loadStock(stock: String): String? = runBlocking {
     val tenAgoDS = tenDaysAgo.toString()
     println(tenAgoDS)
 
-    //val response: io.ktor.client.statement.HttpResponse = client.get("https://eodhistoricaldata.com/api/eod/${stock}.US?from=${tenAgoDS}&to=${currentDS}&period=d&api_token=62032ef650f652.09181735")//get("https://eodhistoricaldata.com/api/eod/AMZN.US?api_token=62032ef650f652.09181735")
-
     val response: io.ktor.client.statement.HttpResponse? = try {
-         client.get("https://eodhistoricaldata.com/api/eod/${stock}.US?from=${tenAgoDS}&to=${currentDS}&period=d&api_token=62032ef650f652.09181735")
+         client.get("https://eodhistoricaldata.com/api/eod/${stock}.US?from=${tenAgoDS}&to=${currentDS}&period=d&api_token=${envSTOCKKEY}")
     } catch (cause: Throwable) {
         null
     }
@@ -151,8 +152,6 @@ fun loadStock(stock: String): String? = runBlocking {
 
 fun setStockDataStorage(stock: String): List<StockpointEODH>? {
     if( stockStorage.keys.contains(stock)) {
-        //println(stockStorage.toString())
-        //println("ok")
         return stockStorage[stock]; // not null because of the contains check
     } else {
         var csvFile: String = loadStock(stock) ?: return emptyList()
@@ -181,8 +180,6 @@ fun setStockDataStorage(stock: String): List<StockpointEODH>? {
                 )
             }
         stockStorage[stock] = stockDataStorage4
-        //println(stockStorage.toString())
-        //println("ok")
         return stockStorage[stock];
     }
 
