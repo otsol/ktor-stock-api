@@ -15,6 +15,10 @@ import java.security.SecureRandom
 //import com.
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.typesafe.config.ConfigException
+//import io.ktor.client.response.HttpResponse
+//import io.ktor.features.CallId.Feature.logger
+import io.ktor.http.*
+import io.ktor.http.content.*
 import kotlinx.serialization.Serializable
 import java.util.*
 
@@ -62,7 +66,7 @@ suspend fun loadData(): String  {
 
 fun load(): String = runBlocking {
     val data = loadData()
-    println(data)
+    //println(data)
     if(data.lastIndexOf("\n")>0) {
         data.substring(0, data.lastIndexOf("\n"));
     } else {
@@ -98,7 +102,7 @@ fun setStorage() {
             )
         }
 
-    println(stockDataStorage.toString())
+    //println(stockDataStorage.toString())
     println("ok")
 }
 
@@ -115,23 +119,43 @@ suspend fun loadStockData(stock: String): String {
     return response.receive<String>()
 }
 
-fun loadStock(stock: String): String = runBlocking {
-    val data = loadStockData(stock)
+fun loadStock(stock: String): String? = runBlocking {
+
+    //var simpleFormat = DateTimeFormatter.ISO_DATE
+    var currentDate = LocalDate.now()
+    val currentDS = currentDate.toString()
+    println(currentDS)
+    var tenDaysAgo = currentDate.minusDays(10L)
+    val tenAgoDS = tenDaysAgo.toString()
+    println(tenAgoDS)
+
+    //val response: io.ktor.client.statement.HttpResponse = client.get("https://eodhistoricaldata.com/api/eod/${stock}.US?from=${tenAgoDS}&to=${currentDS}&period=d&api_token=62032ef650f652.09181735")//get("https://eodhistoricaldata.com/api/eod/AMZN.US?api_token=62032ef650f652.09181735")
+
+    val response: io.ktor.client.statement.HttpResponse? = try {
+         client.get("https://eodhistoricaldata.com/api/eod/${stock}.US?from=${tenAgoDS}&to=${currentDS}&period=d&api_token=62032ef650f652.09181735")
+    } catch (cause: Throwable) {
+        null
+    }
+    if(response == null) { //response.status != HttpStatusCode.OK
+        null
+    } else {
+    val data = response.receive<String>()
     //println(data)
     if(data.lastIndexOf("\n")>0) {
         data.substring(0, data.lastIndexOf("\n"));
     } else {
         data;
     }
+    }
 }
 
 fun setStockDataStorage(stock: String): List<StockpointEODH>? {
     if( stockStorage.keys.contains(stock)) {
-        println(stockStorage.toString())
-        println("ok")
-        return stockStorage[stock];
+        //println(stockStorage.toString())
+        //println("ok")
+        return stockStorage[stock]; // not null because of the contains check
     } else {
-        var csvFile: String = loadStock(stock)
+        var csvFile: String = loadStock(stock) ?: return emptyList()
         //println(csvFile)
         val rows: List<Map<String, String>> = csvReader().readAllWithHeader(csvFile)
         //println(rows)
@@ -157,8 +181,8 @@ fun setStockDataStorage(stock: String): List<StockpointEODH>? {
                 )
             }
         stockStorage[stock] = stockDataStorage4
-        println(stockStorage.toString())
-        println("ok")
+        //println(stockStorage.toString())
+        //println("ok")
         return stockStorage[stock];
     }
 
