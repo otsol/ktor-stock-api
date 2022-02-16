@@ -5,18 +5,13 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.response.*
-//import io.ktor.client.response.HttpResponse
+
 import io.ktor.client.statement.*
 import io.ktor.network.tls.*
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.security.SecureRandom
-//import com.
+
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.typesafe.config.ConfigException
-//import io.ktor.client.response.HttpResponse
-//import io.ktor.features.CallId.Feature.logger
 import io.ktor.http.*
 import io.ktor.http.content.*
 import kotlinx.serialization.Serializable
@@ -51,23 +46,18 @@ val client = HttpClient(CIO) {
 var envMCDKEY: String = System.getenv("API_KEY_MCD") ?: "OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX" // public demo api key
 var envSTOCKKEY: String = System.getenv("API_KEY_STOCK") ?: "OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX" // public demo api key
 
+// Used to save all stock data on the server
 var stockDataStorage = emptyList<List<StockDetail>>()
 var stockDataStorage2 = emptyList<StockpointEODH>()
 var stockStorage = mutableMapOf<String, List<StockpointEODH>>()
 
+// helper function for setStorage
 suspend fun loadData(): String  {
-//= coroutineScope {
-//    val data = launch {
-//        //client.get("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&outputsize=full&apikey=PVQQDKZ26IILSNPS")
-//        val response: io.ktor.client.statement.HttpResponse = client.get("https://eodhistoricaldata.com/api/eod/AAPL.US?from=2017-01-05&to=2017-02-10&period=d&fmt=json&api_token={OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX}")
-//        csvFile = response.receive()
-//        return@launch
-//    }
 
     val response: io.ktor.client.statement.HttpResponse = client.get("https://eodhistoricaldata.com/api/eod/MCD.US?api_token=${envMCDKEY}&period=d")
     return response.receive<String>()
 }
-
+// helper function for setStorage
 fun load(): String = runBlocking {
     val data = loadData()
     //println(data)
@@ -79,11 +69,10 @@ fun load(): String = runBlocking {
 }
 
 
-fun setStorage() {
+fun setStorage() {  // set stock history for McDonald's stock. Multiple decades. Run only once on startup.
     var csvFile: String = load()
-    //println(csvFile)
     val rows: List<Map<String, String>> = csvReader().readAllWithHeader(csvFile)
-    //println(rows)
+
     var simpleFormat = DateTimeFormatter.ISO_DATE
     stockDataStorage =
         rows.map { m ->
@@ -107,19 +96,8 @@ fun setStorage() {
         }
 }
 
-suspend fun loadStockData(stock: String): String {
 
-    var currentDate = LocalDate.now()
-    val currentDS = currentDate.toString()
-    println(currentDS)
-    var tenDaysAgo = currentDate.minusDays(10L)
-    val tenAgoDS = tenDaysAgo.toString()
-    println(tenAgoDS)
-
-    val response: io.ktor.client.statement.HttpResponse = client.get("https://eodhistoricaldata.com/api/eod/${stock}.US?from=${tenAgoDS}&to=${currentDS}&period=d&api_token=${envSTOCKKEY}")
-    return response.receive<String>()
-}
-
+// helper function for setStockDataStorage
 fun loadStock(stock: String): String? = runBlocking {
 
     var currentDate = LocalDate.now()
@@ -146,7 +124,7 @@ fun loadStock(stock: String): String? = runBlocking {
     }
     }
 }
-
+// load recent data for a single stock from EOD Historical Data
 fun setStockDataStorage(stock: String): List<StockpointEODH>? {
     if( stockStorage.keys.contains(stock)) {
         return stockStorage[stock]; // not null because of the contains check

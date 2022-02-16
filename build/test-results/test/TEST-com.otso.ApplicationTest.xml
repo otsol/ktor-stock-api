@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.otso.ApplicationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-02-16T07:15:00" hostname="DESKTOP-32BNTQO" time="1.542">
-  <properties/>
-  <testcase name="testRoot" classname="com.otso.ApplicationTest" time="1.542"/>
-  <system-out><![CDATA[2022-02-16 09:15:01.375 [Test worker] INFO  ktor.test - Autoreload is disabled because the development mode is off.
-2022-02-16 09:15:01.394 [Test worker] INFO  ktor.test - Application started in 0.158 seconds.
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
