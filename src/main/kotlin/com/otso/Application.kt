@@ -5,7 +5,7 @@ import io.ktor.server.netty.*
 import com.otso.plugins.*
 import com.otso.stockdata.load
 import com.otso.stockdata.setStorage
-import io.ktor.application.*
+//import io.ktor.application.*
 
 // Remember to adjust heroku envs GRADLE_TASK="build"
 
@@ -19,7 +19,7 @@ fun main() {
         configureRouting()
         configureSerialization()
         configureHTTP()
-        configureAdministration()
+        //configureAdministration()
         setStorage()
     }.start(wait = true)
 
